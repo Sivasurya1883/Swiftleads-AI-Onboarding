@@ -55,6 +55,24 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       return res.status(500).json({ success: false, error: insertError.message });
     }
 
+    // --- Send webhook to n8n ---
+    try {
+      await fetch("https://primary-production-4497.up.railway.app/webhook/608478ca-3d85-44f4-8cb6-659a06fe9ba0", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userName,
+          description,
+          fileName,
+          publicUrl: publicUrlData.publicUrl,
+        }),
+      });
+    } catch (webhookError) {
+      // Optionally log or handle webhook errors, but don't fail the upload
+      console.error("n8n webhook error:", webhookError);
+    }
+    // --- End webhook ---
+
     res.json({
       success: true,
       fileName,
