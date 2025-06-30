@@ -21,6 +21,9 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const fileBuffer = fs.readFileSync(filePath);
     const fileName = `${Date.now()}-${req.file.originalname}`;
 
+    // Log the mimetype for debugging
+    console.log('Uploaded file mimetype:', req.file.mimetype);
+
     // Upload to Supabase Storage (replace 'audio' with your bucket name)
     const { data, error } = await supabase.storage
       .from('audio')
