@@ -7,7 +7,12 @@ import fs from 'fs';
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
-app.use(cors());
+app.use(cors({
+  origin: '*', // Allow all origins (for development)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
 
 // Supabase setup
 const supabaseUrl = process.env.SUPABASE_URL;
