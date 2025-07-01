@@ -3,10 +3,10 @@ import express from 'express';
 import multer from 'multer';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
-import fs from 'fs';
 
 const app = express();
-const upload = multer({ dest: 'uploads/' });
+// Use memory storage for serverless/cloud environments
+const upload = multer({ storage: multer.memoryStorage() });
 app.use(cors({
   origin: '*', // Allow all origins (for development)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -22,8 +22,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const { userName, description } = req.body;
-    const filePath = req.file.path;
-    const fileBuffer = fs.readFileSync(filePath);
+    const fileBuffer = req.file.buffer; // Use buffer directly from memory
     const fileName = `${Date.now()}-${req.file.originalname}`;
 
     // Log the mimetype for debugging
@@ -36,9 +35,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         contentType: req.file.mimetype,
         upsert: false,
       });
-
-    // Remove temp file
-    fs.unlinkSync(filePath);
 
     if (error) {
       return res.status(500).json({ success: false, error: error.message });
